@@ -20,7 +20,7 @@ export function login(req: ISteamUser & Request, res: Response) {
           sameSite: 'none', // true
           secure: true,
         })
-        .redirect('/')
+        .redirect('http://localhost:3000');
     })
     .catch(console.log)
 }
