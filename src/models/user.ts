@@ -1,27 +1,35 @@
-import mongoose from 'mongoose'
+import { model, Schema } from 'mongoose'
 
 interface IUser {
-  steamid: number
+  steamId: number
   name: string
-  avatar: string
+  photos: string[]
   balance: number
-  permission: 'user' | 'admin'
+  group: string
 }
-const userSchema = new mongoose.Schema<IUser>({
-  steamid: {
+const userSchema = new Schema<IUser>({
+  steamId: {
     type: Number,
     required: true,
+    unique: true,
   },
   name: {
     type: String,
     required: true,
   },
-  avatar: {
-    type: String,
+  photos: {
+    type: [{ value: String }],
     required: true,
   },
   balance: {
     type: Number,
-    required: true,
+    default: 0,
+  },
+  group: {
+    type: String,
+    default: 'user',
+    enum: ['user', 'admin'],
   },
 })
+
+export default model('user', userSchema)

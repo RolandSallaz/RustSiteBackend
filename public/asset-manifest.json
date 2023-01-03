@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "./static/css/main.e7d4453b.css",
+    "main.js": "./static/js/main.130d4f6a.js",
+    "static/media/Rubik80sFade-Regular.ttf": "./static/media/Rubik80sFade-Regular.ac16096e6cef03e80992.ttf",
+    "static/media/Roboto-Regular.ttf": "./static/media/Roboto-Regular.fc2b5060f7accec5cf74.ttf",
+    "static/media/background.jpg": "./static/media/background.293285ffd8614611af3f.jpg",
+    "static/media/steamLogo.svg": "./static/media/steamLogo.2a02f3a4e3237c9055cb.svg",
+    "static/media/logo.svg": "./static/media/logo.245f0a70165a964d4648.svg",
+    "index.html": "./index.html",
+    "main.e7d4453b.css.map": "./static/css/main.e7d4453b.css.map",
+    "main.130d4f6a.js.map": "./static/js/main.130d4f6a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e7d4453b.css",
+    "static/js/main.130d4f6a.js"
+  ]
+}
