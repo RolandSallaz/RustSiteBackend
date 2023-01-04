@@ -1,19 +1,16 @@
-import winston from 'winston'
+import { transports, format } from 'winston'
+const { combine, prettyPrint, timestamp, json, simple } = format
 import expressWinston from 'express-winston'
 
+const formatLogs = () =>
+  combine(json(), timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }), prettyPrint())
+
 export const requestLogger = expressWinston.logger({
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    }),
-    new winston.transports.File({
-      filename: 'request.log',
-    }),
-  ],
-  format: winston.format.json(),
+  transports: [new transports.File({ filename: 'request.log' })],
+  format: formatLogs(),
 })
 
 export const errorLogger = expressWinston.errorLogger({
-  transports: [new winston.transports.File({ filename: 'error.log' })],
-  format: winston.format.json(),
+  transports: [new transports.File({ filename: 'error.log' })],
+  format: formatLogs(),
 })

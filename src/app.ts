@@ -31,6 +31,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(passport.initialize())
 app.use(passport.session())
+mongoose.set("strictQuery", false);
 mongoose.connect(MONGO_URL)
 app.use(cors(corsSettings))
 app.use(requestLogger)
