@@ -9,8 +9,8 @@ export default (req: Request, res: Response, next: NextFunction) => {
   try {
     payload = jwt.verify(token, SECRET_KEY)
   } catch (err) {
-    return res.status(401).send({ message: 'необходима авторизация' })
+    next(err)
   }
-  req.user = payload 
+  req.user = payload
   next()
 }

@@ -6,5 +6,7 @@ export function getCurrentUser(
   res: Response,
   next: NextFunction,
 ) {
-  return User.findById(req.user).then(res.send).catch(next)
+  return User.findById(req.user)
+    .then((user) => res.send(user))
+    .catch(next)
 }

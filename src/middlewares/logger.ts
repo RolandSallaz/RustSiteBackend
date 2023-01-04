@@ -6,11 +6,11 @@ const formatLogs = () =>
   combine(json(), timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }), prettyPrint())
 
 export const requestLogger = expressWinston.logger({
-  transports: [new transports.File({ filename: 'request.log' })],
+  transports: [new transports.File({ filename: 'logs/request.log' })],
   format: formatLogs(),
 })
 
 export const errorLogger = expressWinston.errorLogger({
-  transports: [new transports.File({ filename: 'error.log' })],
+  transports: [new transports.File({ filename: 'logs/error.log' })],
   format: formatLogs(),
 })
