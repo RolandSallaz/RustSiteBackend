@@ -1,0 +1,12 @@
+import { errorMessages } from '../utils/errorMessages'
+import { ErrorRequestHandler } from 'express'
+
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  const { statusCode = 500, message } = err
+  res.status(statusCode).send({
+    message: statusCode === 500 ? errorMessages.SERVER : message,
+  })
+  next()
+}
+
+export default errorHandler

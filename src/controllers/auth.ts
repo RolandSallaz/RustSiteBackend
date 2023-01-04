@@ -1,10 +1,15 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import User from '../models/user'
 import { ISteamUser } from '../utils/Interfaces'
 import jwt from 'jsonwebtoken'
 import { SECRET_KEY } from '../utils/config'
+import { successMessages } from '../utils/successMesages'
 
-export function login(req: ISteamUser & Request, res: Response) {
+export function login(
+  req: ISteamUser & Request,
+  res: Response,
+  next: NextFunction,
+) {
   const { id, displayName, photos } = req.user
   User.findOneAndUpdate(
     { steamId: id },
@@ -20,11 +25,14 @@ export function login(req: ISteamUser & Request, res: Response) {
           sameSite: 'none', // true
           secure: true,
         })
-        .redirect('http://localhost:3000');
+        .redirect('http://localhost:3000')
     })
-    .catch(console.log)
+    .catch(next)
 }
 
 export function logout(req: Request, res: Response) {
-  return res.clearCookie('jwt').status(200).send({ message: 'Выход успешен' })
+  return res
+    .clearCookie('jwt')
+    .status(200)
+    .send({ message: successMessages.LOGOUT })
 }
