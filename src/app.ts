@@ -9,6 +9,7 @@ import errorHandler from './middlewares/errorHandler'
 import { requestLogger, errorLogger } from './middlewares/logger'
 import helmet from 'helmet'
 import { limiter } from './middlewares/rateLimiter'
+import {errors} from 'celebrate'
 
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
@@ -41,5 +42,6 @@ app.use(cors(corsSettings))
 app.use(requestLogger)
 app.use(routes)
 app.use(errorLogger)
+app.use(errors())
 app.use(errorHandler)
 app.listen(PORT, () => console.log(`App listening ons port ${PORT}`))
