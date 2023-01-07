@@ -1,19 +1,32 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { errorMessages } from '../utils/errorMessages'
 import { successMessages } from '../utils/successMesages'
-const { Client } = require('rustrcon')
+import ConflictError from '../errors/ConflictError'
+import Server from '../models/server'
 
-export function sendServer(req:Request,res:Response){
-        const rcon = new Client(req.body)
-        rcon.login()
-        rcon.on('connected', () => {
-            res
-            .status(201)
-            .send({message:successMessages.SERVER_CONNECTED})
-          })
-        rcon.on('error', (err:Error) => {
-            res
-            .status(408)
-            .send({message:errorMessages.TIMEOUT})
-         });
-    }
+export function sendServer(req: Request, res: Response, next: NextFunction) {
+  const { ip, port, password } = req.body
+
+  Server.create({ ip, port, password })
+    .then(() => {
+      res.status(201).send({ message: 'Сервер добавлен' })
+    })
+    .catch((err) => {
+      if (err.code === 11000) {
+        return next(new ConflictError(errorMessages.SERVER_CONFLICT))
+      }
+      return next(err)
+    })
+}
+
+export function getServers(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  Server.find({})
+    .then((servers) => {
+      res.send(servers)
+    })
+    .catch(next)
+}
