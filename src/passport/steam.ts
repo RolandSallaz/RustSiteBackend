@@ -9,7 +9,11 @@ export const steamPassport = new SteamStrategy(
     realm: 'http://localhost:' + PORT + '/',
     apiKey: API_KEY,
   },
-  function (identifier: string, profile: ISteamUser, done: any) {
+  function (
+    identifier: string,
+    profile: ISteamUser,
+    done: (arg: null, arg2: ISteamUser) => { message: string } | Error,
+  ) {
     process.nextTick(function () {
       return done(null, profile)
     })

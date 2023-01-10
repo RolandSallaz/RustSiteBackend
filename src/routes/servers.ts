@@ -1,12 +1,11 @@
-import {
-  getServers,
-  sendServer,
-} from '../controllers/server'
+import { deleteServer, getServers, sendServer } from '../controllers/server'
+import adminOnly from '../middlewares/adminOnly'
 import { validateServer } from '../middlewares/validation'
 
 const router = require('express').Router()
 
-router.post('/', validateServer, sendServer)
 router.get('/', getServers)
+router.post('/', adminOnly, validateServer, sendServer)
+router.delete('/', adminOnly, deleteServer)
 
 export default router

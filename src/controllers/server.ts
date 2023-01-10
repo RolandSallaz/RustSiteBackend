@@ -19,11 +19,16 @@ export function sendServer(req: Request, res: Response, next: NextFunction) {
     })
 }
 
-export function getServers(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export function deleteServer(req: Request, res: Response, next: NextFunction) {
+  const { ip, port } = req.body
+  Server.findOneAndDelete({ ip, port })
+    .then(() => {
+      res.send({ message: successMessages.DELETED })
+    })
+    .catch(next)
+}
+
+export function getServers(req: Request, res: Response, next: NextFunction) {
   Server.find({})
     .then((servers) => {
       res.send(servers)
