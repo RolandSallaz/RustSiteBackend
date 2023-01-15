@@ -27,8 +27,9 @@ async function updateServerInfo(server: IServer) {
         Server.findOneAndUpdate(
           { ip: server.ip, port: server.port },
           { info: message.content, enabled: true },
-        ).catch(reject)
-        resolve(true)
+        )
+        .then(resolve)
+        .catch(reject)
       }
     })
     rcon.on('error', (err: ErrorEvent) => {

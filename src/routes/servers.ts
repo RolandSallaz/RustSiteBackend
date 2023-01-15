@@ -6,6 +6,6 @@ const router = require('express').Router()
 
 router.get('/', getServers)
 router.post('/', adminOnly, validateServer, sendServer)
-router.delete('/', adminOnly, deleteServer)
+router.delete('/:id', adminOnly, deleteServer)
 
 export default router

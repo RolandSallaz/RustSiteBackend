@@ -8,8 +8,8 @@ export function sendServer(req: Request, res: Response, next: NextFunction) {
   const { ip, port, password } = req.body
 
   Server.create({ ip, port, password })
-    .then(() => {
-      res.status(201).send({ message: 'Сервер добавлен' })
+    .then((server) => {
+      res.status(201).send({ message: 'Сервер добавлен', server})
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -20,10 +20,10 @@ export function sendServer(req: Request, res: Response, next: NextFunction) {
 }
 
 export function deleteServer(req: Request, res: Response, next: NextFunction) {
-  const { ip, port } = req.body
-  Server.findOneAndDelete({ ip, port })
-    .then(() => {
-      res.send({ message: successMessages.DELETED })
+  const { id } = req.params;
+  Server.findByIdAndDelete(id)
+    .then((server) => {
+      res.send({ message: successMessages.DELETED, server })
     })
     .catch(next)
 }
