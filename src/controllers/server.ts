@@ -2,7 +2,9 @@ import { NextFunction, Request, Response } from 'express'
 import { errorMessages } from '../utils/errorMessages'
 import { successMessages } from '../utils/successMesages'
 import ConflictError from '../errors/ConflictError'
-import Server from '../models/server'
+import Server, { IServer } from '../models/server'
+import { serverMessage } from '../utils/serverChecker'
+const { Client } = require('rustrcon')
 
 export function sendServer(req: Request, res: Response, next: NextFunction) {
   const { ip, port, password } = req.body
@@ -34,4 +36,14 @@ export function getServers(req: Request, res: Response, next: NextFunction) {
       res.send(servers)
     })
     .catch(next)
+}
+
+export function sendServerCommand(req: Request, res: Response, next: NextFunction){
+  const { params:{id},body:{command},user} = req;
+  Server.findById(id)
+    .then((server)=>{
+      serverMessage({server: server as IServer,command,user})
+      .then((message)=>res.send(message))
+      .catch(next)
+    })
 }

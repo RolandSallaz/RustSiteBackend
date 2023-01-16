@@ -1,4 +1,3 @@
-import { responseWhitelist } from 'express-winston'
 import { ErrorEvent } from 'ws'
 import Server, { IServer, IServerInfo } from '../models/server'
 import { errorMessages } from './errorMessages'
@@ -28,8 +27,8 @@ async function updateServerInfo(server: IServer) {
           { ip: server.ip, port: server.port },
           { info: message.content, enabled: true },
         )
-        .then(resolve)
-        .catch(reject)
+          .then(resolve)
+          .catch(reject)
       }
     })
     rcon.on('error', (err: ErrorEvent) => {
@@ -49,4 +48,36 @@ async function updateServerInfo(server: IServer) {
       console.log(err.message)
     })
     .finally(() => rcon.destroy())
+}
+
+export async function serverMessage<T>({
+  server,
+  command,
+  user,
+}: {
+  server: IServer
+  command: string,
+  user:T,
+}) {
+  const rcon = new Client({
+    ip: server?.ip,
+    port: server?.port,
+    password: server?.password,
+  })
+  rcon.login()
+  return new Promise((resolve, reject) => {
+    rcon.on('connected', () => {
+      sendCommand(command).then(resolve)
+    })
+    rcon.on('error', reject)
+  }).then(()=>rcon.destroy())
+
+  function sendCommand(command: string) {
+    return new Promise((resolve, reject) => {
+      rcon.send(command, user, 10)
+      rcon.on('message', (message: any) => {
+        resolve(message)
+      })
+    })
+  }
 }
