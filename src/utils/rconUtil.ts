@@ -1,52 +1,69 @@
-import { ErrorEvent } from 'ws'
-import Server, { IServer, IServerInfo } from '../models/server'
+import ws, { ErrorEvent, WebSocket } from 'ws'
+import Servers, { IServer, IServerInfo } from '../models/server'
 import { errorMessages } from './errorMessages'
 const { Client } = require('rustrcon')
-
+interface IClient extends WebSocket {
+  options: {
+    ip: string
+    port: number
+    password: string
+  }
+  login(): void
+  destroy(): void
+}
 export function checkAndUpdateServers() {
-  Server.find({}).then((servers:IServer[]) => {
+  Servers.find({}).then((servers: IServer[]) => {
     if (!servers.length) return
     servers.forEach((server) => updateServerInfo(server))
   })
 }
 
 async function updateServerInfo(server: IServer) {
-  const rcon = new Client({
-    ip: server.ip,
-    port: server.port,
-    password: server.password,
+  const { ip, port, password } = server
+  const rcon: IClient = new Client({
+    ip,
+    port,
+    password,
   })
   rcon.login()
   rcon.on('connected', () => {
-    rcon.send('serverinfo', 'Artful', 10)
+    rcon.send('serverinfo')
   })
-  await new Promise((resolve, reject) => {
-    rcon.on('message', (message: { content: IServerInfo }) => {
-      if (message.content.hasOwnProperty('Hostname')) {
-        Server.findOneAndUpdate(
-          { ip: server.ip, port: server.port },
-          { info: message.content, enabled: true },
-        )
-          .then(resolve)
-          .catch(reject)
-      }
-    })
-    rcon.on('error', (err: ErrorEvent) => {
 
-      reject(err)
+  Promise.all([getServerInfo(rcon), getServerConnection(rcon)])
+    .then(([info, enabled]) => {
+      Servers.findOneAndUpdate({ ip, port }, { info, enabled})
     })
-  })
     .catch((err: ErrorEvent) => {
-      const {
-        error: { errno, adress },
-      } = err
-      if (errno == -4078) {
-        // Server.findOneAndUpdate({ ip: adress }, { enabled: false });
-        console.log(`${errorMessages.SERVER_COULD_NOT_CONNECT} ${server.ip} ${server.port}`)
+      if (err.error.errno == -4078) {
+        Servers.findOneAndUpdate({ ip, port }, { enabled: false }).then(() =>
+          console.log(
+            `${errorMessages.SERVER_COULD_NOT_CONNECT} ${ip} ${port}`,
+          ),
+        )
       }
-      Server.findOneAndUpdate({ ip:server.ip,port:server.port }, { enabled: false });
     })
     .finally(() => rcon.destroy())
+}
+
+async function getServerInfo(rcon: IClient) {
+  return await new Promise((resolve, reject) => {
+    rcon.on('message', (message: { content: IServerInfo }) => {
+      message.content.hasOwnProperty('Hostname')
+        ? resolve({ info: message.content })
+        : reject()
+    })
+    rcon.on('error', reject)
+  })
+}
+
+async function getServerConnection(rcon: IClient) {
+  return await new Promise((resolve, reject) => {
+    rcon.on('connected', () => {
+      resolve(true)
+    })
+    rcon.on('error', reject)
+  })
 }
 
 export async function serverMessage<T>({
@@ -55,8 +72,8 @@ export async function serverMessage<T>({
   user,
 }: {
   server: IServer
-  command: string,
-  user:T,
+  command: string
+  user: T
 }) {
   const rcon = new Client({
     ip: server?.ip,
@@ -69,7 +86,7 @@ export async function serverMessage<T>({
       sendCommand(command).then(resolve)
     })
     rcon.on('error', reject)
-  }).then(()=>rcon.destroy()) // finally
+  }).then(() => rcon.destroy()) // finally
 
   function sendCommand(command: string) {
     return new Promise((resolve, reject) => {
