@@ -3,7 +3,7 @@ import { errorMessages } from '../utils/errorMessages'
 import { successMessages } from '../utils/successMesages'
 import ConflictError from '../errors/ConflictError'
 import Server, { IServer } from '../models/server'
-import { serverMessage } from '../utils/serverChecker'
+import { serverMessage } from '../utils/rconUtil'
 const { Client } = require('rustrcon')
 
 export function sendServer(req: Request, res: Response, next: NextFunction) {

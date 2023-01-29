@@ -2,7 +2,7 @@ require('dotenv').config()
 
 export const {
   PORT = 8000,
-  API_KEY = '771DB037402F9B91ED9A3F1DAFFEBB90',
+  API_KEY = '9E352D607BEEB3F03B5160F0B9EEADC9',
   CLIENT_URL = 'https:localhost:3000',
   MONGO_URL = 'mongodb://localhost:27017/test',
   SECRET_KEY = 'sectet'

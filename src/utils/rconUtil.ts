@@ -4,7 +4,7 @@ import { errorMessages } from './errorMessages'
 const { Client } = require('rustrcon')
 
 export function checkAndUpdateServers() {
-  Server.find({}).then((servers) => {
+  Server.find({}).then((servers:IServer[]) => {
     if (!servers.length) return
     servers.forEach((server) => updateServerInfo(server))
   })
@@ -32,20 +32,19 @@ async function updateServerInfo(server: IServer) {
       }
     })
     rcon.on('error', (err: ErrorEvent) => {
-      const {
-        error: { errno, adress },
-      } = err
-      if (errno == -4078) {
-        Server.findOneAndUpdate({ ip: adress }, { enabled: false })
-        reject({
-          message: `${errorMessages.SERVER_COULD_NOT_CONNECT} ${server.ip} ${server.port}`,
-        })
-      }
+
       reject(err)
     })
   })
     .catch((err: ErrorEvent) => {
-      console.log(err.message)
+      const {
+        error: { errno, adress },
+      } = err
+      if (errno == -4078) {
+        // Server.findOneAndUpdate({ ip: adress }, { enabled: false });
+        console.log(`${errorMessages.SERVER_COULD_NOT_CONNECT} ${server.ip} ${server.port}`)
+      }
+      Server.findOneAndUpdate({ ip:server.ip,port:server.port }, { enabled: false });
     })
     .finally(() => rcon.destroy())
 }
@@ -70,7 +69,7 @@ export async function serverMessage<T>({
       sendCommand(command).then(resolve)
     })
     rcon.on('error', reject)
-  }).then(()=>rcon.destroy())
+  }).then(()=>rcon.destroy()) // finally
 
   function sendCommand(command: string) {
     return new Promise((resolve, reject) => {

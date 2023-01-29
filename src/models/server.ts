@@ -55,4 +55,4 @@ const serverSchema = new Schema<IServer>({
   },
 })
 
-export default model('server', serverSchema)
+export default model<IServer>('server', serverSchema)

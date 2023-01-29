@@ -10,16 +10,8 @@ import { requestLogger, errorLogger } from './middlewares/logger'
 import helmet from 'helmet'
 import { limiter } from './middlewares/rateLimiter'
 import { errors } from 'celebrate'
-import { checkAndUpdateServers } from './utils/serverChecker'
-
-// rcon.on('message', (message: any) => {
-//   const writer = fs.createWriteStream('./logs/serverLog.txt',{ 'flags': 'a'
-//   , 'encoding': null
-//   , 'mode': '0666'
-//   })
-//   writer.write(JSON.stringify(message)+"\r\n")
-// })
-
+import { checkAndUpdateServers } from './utils/rconUtil'
+const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
 const session = require('express-session')
@@ -34,12 +26,19 @@ app.use(
     secret: 'Whatever_You_Want',
     saveUninitialized: true,
     resave: false,
-    cookie: {
-      maxAge: 300000,
-    },
   }),
 )
 setInterval(checkAndUpdateServers, 10000)
+app.use(
+  fileUpload({
+    limits: {
+      fileSize: 10000000, // 10 mb limit
+    },
+    abortOnLimit: true,
+  }),
+)
+app.use('/images', express.static('images'));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 app.use(cookieParser())
 app.use(limiter)

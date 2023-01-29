@@ -1,6 +1,6 @@
 import { deleteServer, getServers, sendServer, sendServerCommand } from '../controllers/server'
 import adminOnly from '../middlewares/adminOnly'
-import { validateServer } from '../middlewares/validation'
+import { validateServer } from '../utils/validation'
 
 const router = require('express').Router()
 
