@@ -7,7 +7,7 @@ npm-debug.log*
 /node_modules
 /.pnp
 .pnp.js
-
+/images
 /.idea
 # testing
 /coverage
