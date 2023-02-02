@@ -26,32 +26,29 @@ async function updateServerInfo(server: IServer) {
     password,
   })
   rcon.login()
-  rcon.on('connected', () => {
-    rcon.send('serverinfo')
-  })
-
   Promise.all([getServerInfo(rcon), getServerConnection(rcon)])
     .then(([info, enabled]) => {
-      Servers.findOneAndUpdate({ ip, port }, { info, enabled})
+      Servers.findOneAndUpdate({ ip, port }, { info, enabled:true})
+      .catch(console.log)
     })
     .catch((err: ErrorEvent) => {
-      if (err.error.errno == -4078) {
+      // if (err.error.errno == -4078) {
         Servers.findOneAndUpdate({ ip, port }, { enabled: false }).then(() =>
           console.log(
             `${errorMessages.SERVER_COULD_NOT_CONNECT} ${ip} ${port}`,
           ),
         )
-      }
+      
     })
     .finally(() => rcon.destroy())
 }
 
-async function getServerInfo(rcon: IClient) {
+async function getServerInfo(rcon: IClient):Promise<IServerInfo> {
   return await new Promise((resolve, reject) => {
     rcon.on('message', (message: { content: IServerInfo }) => {
       message.content.hasOwnProperty('Hostname')
-        ? resolve({ info: message.content })
-        : reject()
+        ? resolve(message.content)
+        : reject('wrong message')
     })
     rcon.on('error', reject)
   })
@@ -60,6 +57,7 @@ async function getServerInfo(rcon: IClient) {
 async function getServerConnection(rcon: IClient) {
   return await new Promise((resolve, reject) => {
     rcon.on('connected', () => {
+      rcon.send('serverinfo')
       resolve(true)
     })
     rcon.on('error', reject)

@@ -1,24 +1,31 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
+import { Group } from '../enums/enums'
 import { SECRET_KEY } from '../utils/config'
 
 interface userCookie {
   exp: number
   iat: number
   _id: 'string'
+  group: any
 }
 
-export default (req: Request, res: Response, next: NextFunction) => {
+export interface customRequest extends Request {
+  group?: Group
+}
+
+export default (req: customRequest, res: Response, next: NextFunction) => {
   const token = req.cookies.jwt
 
-  let userId;
+  let data;
   try {
     const payload = jwt.verify(token, SECRET_KEY) as userCookie
-    userId= payload._id
+    data= {_id:payload._id,group:payload.group}
   } catch (err) {
     next(err)
   }
-  req.user = userId;
+  req.user = data?._id;
+  req.group = data?.group
   
   next()
 }

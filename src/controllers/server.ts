@@ -2,16 +2,18 @@ import { NextFunction, Request, Response } from 'express'
 import { errorMessages } from '../utils/errorMessages'
 import { successMessages } from '../utils/successMesages'
 import ConflictError from '../errors/ConflictError'
-import Server, { IServer } from '../models/server'
+import Servers, { IServer } from '../models/server'
 import { serverMessage } from '../utils/rconUtil'
+import { customRequest } from '../middlewares/auth'
+import { Group } from '../enums/enums'
 const { Client } = require('rustrcon')
 
 export function sendServer(req: Request, res: Response, next: NextFunction) {
   const { ip, port, password } = req.body
 
-  Server.create({ ip, port, password })
+  Servers.create({ ip, port, password })
     .then((server) => {
-      res.status(201).send({ message: 'Сервер добавлен', server})
+      res.status(201).send({ message: 'Сервер добавлен', server })
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -22,28 +24,55 @@ export function sendServer(req: Request, res: Response, next: NextFunction) {
 }
 
 export function deleteServer(req: Request, res: Response, next: NextFunction) {
-  const { id } = req.params;
-  Server.findByIdAndDelete(id)
+  const { id } = req.params
+  Servers.findByIdAndDelete(id)
     .then((server) => {
       res.send({ message: successMessages.DELETED, server })
     })
     .catch(next)
 }
 
-export function getServers(req: Request, res: Response, next: NextFunction) {
-  Server.find({})
+export function getServers(
+  req: customRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  Servers.find({})
     .then((servers) => {
-      res.send(servers)
+      res.send(
+        req.group == Group.ADMIN
+          ? servers
+          : servers.map((item) => {
+              return {
+                ip: item.ip,
+                port: item.port,
+                info: {
+                  Hostname: item.info.Hostname,
+                  MaxPlayers: item.info.MaxPlayers,
+                  Players: item.info.Players,
+                  Map: item.info.Map,
+                },
+                enabled: item.enabled,
+              }
+            }),
+      )
     })
     .catch(next)
 }
 
-export function sendServerCommand(req: Request, res: Response, next: NextFunction){
-  const { params:{id},body:{command},user} = req;
-  Server.findById(id)
-    .then((server)=>{
-      serverMessage({server: server as IServer,command,user})
-      .then((message)=>res.send(message))
+export function sendServerCommand(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const {
+    params: { id },
+    body: { command },
+    user,
+  } = req
+  Servers.findById(id).then((server) => {
+    serverMessage({ server: server as IServer, command, user })
+      .then((message) => res.send(message))
       .catch(next)
-    })
+  })
 }

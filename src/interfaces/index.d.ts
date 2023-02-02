@@ -1,5 +1,5 @@
 export interface IProduct {
-    title: String,
-    price: Number,
-    rconCommand: String,
-  }
+  title: String
+  price: Number
+  rconCommand: String
+}

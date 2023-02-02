@@ -1,11 +1,12 @@
 import { model, Schema } from 'mongoose'
+import { Group } from '../enums/enums'
 
 interface IUser {
   steamId: number
   name: string
   photos: string[]
   balance: number
-  group: string
+  group: Group
 }
 const userSchema = new Schema<IUser>({
   steamId: {
@@ -27,8 +28,8 @@ const userSchema = new Schema<IUser>({
   },
   group: {
     type: String,
-    default: 'user',
-    enum: ['user', 'admin'],
+    default: Group.USER,
+    enum: Group,
   },
 })
 

@@ -17,7 +17,9 @@ export function login(
     { new: true, upsert: true },
   )
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' })
+      const token = jwt.sign({ _id: user._id, group: user.group }, SECRET_KEY, {
+        expiresIn: '7d',
+      })
       return res
         .cookie('jwt', token, {
           maxAge: 7 * 24 * 3600 * 1000, // one week

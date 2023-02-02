@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { UploadedFile } from 'express-fileupload'
-import Product, { IProductSchema } from '../models/product'
+import Products, { IProductSchema } from '../models/product'
 import { IProduct } from '../interfaces'
 import { errorMessages } from '../utils/errorMessages'
+import { customRequest } from '../middlewares/auth'
+import { Group } from '../enums/enums'
 
 var fs = require('fs')
 interface IProductRequest extends IProduct {
@@ -25,7 +27,7 @@ export function postProduct(req: Request, res: Response, next: NextFunction) {
     if (err) {
       return next(err)
     } else {
-      Product.findOneAndUpdate<IProductSchema>(
+      Products.findOneAndUpdate<IProductSchema>(
         { title },
         { title, price, rconCommand, imageLink },
         { new: true, upsert: true },
@@ -36,4 +38,27 @@ export function postProduct(req: Request, res: Response, next: NextFunction) {
         .catch(next)
     }
   })
+}
+
+export function getProducts(
+  req: customRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  Products.find({})
+    .then((products) => {
+      res.send(
+        req.group == Group.ADMIN
+          ? products
+          : products.map((item) => {
+              return {
+                _id: item.id,
+                title: item.title,
+                price: item.price,
+                imageLink: item.imageLink,
+              }
+            }),
+      )
+    })
+    .catch(next)
 }

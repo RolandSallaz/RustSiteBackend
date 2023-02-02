@@ -11,4 +11,4 @@ const productSchema = new Schema<IProductSchema>({
   rconCommand: { type: String, required: true },
 })
 
-export default model<IProduct>('product', productSchema)
+export default model<IProductSchema>('product', productSchema)
