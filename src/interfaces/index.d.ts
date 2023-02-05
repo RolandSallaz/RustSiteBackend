@@ -1,5 +1,7 @@
+import { Types,} from 'mongoose';
+
 export interface IProduct {
   title: String
-  price: Number
+  price: Types.Decimal128
   rconCommand: String
 }

@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose'
+import { model, Schema, Types } from 'mongoose'
 import { IProduct } from '../interfaces'
 
 export interface IProductSchema extends IProduct{
@@ -6,7 +6,7 @@ export interface IProductSchema extends IProduct{
 }
 const productSchema = new Schema<IProductSchema>({
   title: { type: String, required: true },
-  price: { type: Number, required: true },
+  price: { type: Types.Decimal128, required: true },
   imageLink: { type: String, required: true },
   rconCommand: { type: String, required: true },
 })
