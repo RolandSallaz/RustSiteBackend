@@ -23,7 +23,7 @@ passport.deserializeUser((user: ISteamUser, done: any) => done(null, user))
 passport.use(steamPassport)
 app.use(
   session({
-    secret: 'Whatever_You_Want',
+    secret: 'Whatever_You_Want', //todo брать ключ из env 
     saveUninitialized: true,
     resave: false,
   }),
